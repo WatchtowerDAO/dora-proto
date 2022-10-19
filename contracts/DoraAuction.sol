@@ -3,10 +3,14 @@ pragma solidity ^0.8.17;
 
 import "../interfaces/IERC721.sol";
 
+/// @title DoraAuction.sol
+/// @author witwiki (@gritty_69)
+/// @notice Contract that runs the auction tournaments for determining Pc 
+/// @dev Unlike a trad Auction contract, it requires a confidence parameter during a bid
 abstract contract DoraAuction is IERC721 {
 
     // Events
-    event Bid(address indexed bidder, uint256 amount);
+    event HighestBidIncreased(address indexed bidder, uint256 amount);
     event Withdraw(address indexed bidder, uint256 amount);
     event AuctionStarted();
     event EndAuction(address indexed winner, uint256 amount);
@@ -28,6 +32,11 @@ abstract contract DoraAuction is IERC721 {
     uint public highestBid;
     mapping (address => uint) bids;
 
+
+    /// @dev Basic Constructor with startingBid and nftId
+    /// @param _nft address of the NFT contract
+    /// @param _nftId id of the NFT 
+    /// @param _startingBid starting bid for the auction
     constructor(
         address _nft,
         uint _nftId,
@@ -41,7 +50,7 @@ abstract contract DoraAuction is IERC721 {
         
     }
 
-    /// @dev Start the auction
+    /// @notice Starts the auction
     function startAuction()  external {
         require(msg.sender == owner, "Only owner can start the auction");
         require(!auctionStarted, "Auction already started");
@@ -53,7 +62,7 @@ abstract contract DoraAuction is IERC721 {
         emit AuctionStarted();
     }
 
-    /// @dev End the auction
+    /// @notice Ends the auction
     function endAuction() external {
         require(msg.sender == owner, "Only owner can end the auction");
         require(auctionStarted, "Auction not started");
@@ -71,7 +80,8 @@ abstract contract DoraAuction is IERC721 {
         emit EndAuction(highestBidder, highestBid);
     }
     
-    /// @dev Place a bid    
+    /// @notice Data Scientists place their bids
+    /// @dev Bidders will be required to provide a confidence parameter
     function bidPc() external payable {
         require(auctionStarted, "Auction not started");
         require(block.timestamp < endTime, "Auction ended");
@@ -84,10 +94,10 @@ abstract contract DoraAuction is IERC721 {
         highestBidder = msg.sender;
         highestBid = msg.value;
         
-        emit Bid(msg.sender, msg.value);
+        emit HighestBidIncreased(msg.sender, msg.value);
     }
 
-    /// @dev Withdraw a bid
+    /// @notice Withdraws the bid amount from contract to the owner
     function withdraw() external {
         uint amount = bids[msg.sender];
         require(amount > 0, "Nothing to withdraw");
