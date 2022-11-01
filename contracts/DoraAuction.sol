@@ -22,9 +22,6 @@ abstract contract DoraAuction is IERC721 {
     string public stringHash;
     uint public bidIncrement;   // may not be needed
 
-    IERC721 public wtrNft;
-    uint public wtrNftId;
-
     // State variables (Dynamic)
     bool public auctionStarted;
     bool public auctionEnded;
@@ -107,6 +104,10 @@ abstract contract DoraAuction is IERC721 {
         emit Withdraw(msg.sender, bids[msg.sender]);
     }
 
+
+    function createTournament (uint256 _tournamentId) returns (bool) {
+        var tournament = 
+    }
 
 
 
